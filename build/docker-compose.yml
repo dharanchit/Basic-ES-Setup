@@ -1,0 +1,37 @@
+version: '3'
+services:
+  search-service:
+    container_name: securities-search-module
+    build: 
+      dockerfile: ./build/Dockerfile
+    ports:
+      - "8080:8080"
+    
+    depends_on:
+      - es
+    restart: "on-failure"
+
+    networks:
+      - esnetwork
+
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.6
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "discovery.type=single-node"
+    restart: "always"
+    networks:
+      - esnetwork
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+
+volumes:
+  data01:
+    driver: local
+
+networks:
+  esnetwork:
+    driver: bridge
